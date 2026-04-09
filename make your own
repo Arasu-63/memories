@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Mémoire — Your Daily Heart</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Sacramento&family=DM+Serif+Display:ital@0;1&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet"/>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+  :root {
+    --ink: #1a1008;
+    --parchment: #f5ede0;
+    --sepia: #8b5e3c;
+    --amber: #c8872a;
+    --blush: #d4847a;
+    --rose: #9b4a54;
+    --cream: #faf6ef;
+    --dust: #e8d9c5;
+    --shadow: rgba(26,16,8,0.35);
+    --heart: #b83c52;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--ink);
+    color: var(--parchment);
+    font-family: 'Crimson Pro', Georgia, serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Film grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  /* Floating hearts background */
+  .hearts-bg {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+  }
+
+  .heart-float {
+    position: absolute;
+    font-size: var(--s);
+    opacity: 0;
+    animation: floatUp var(--d) ease-in var(--delay) infinite;
+    left: var(--x);
+    bottom: -5%;
+    color: var(--heart);
+    filter: blur(var(--blur));
+  }
+
+  @keyframes floatUp {
+    0% { opacity: 0; transform: translateY(0) rotate(var(--rot)); }
+    15% { opacity: var(--op); }
+    85% { opacity: var(--op); }
+    100% { opacity: 0; transform: translateY(-110vh) rotate(calc(var(--rot) + 30deg)); }
+  }
+
+  /* Vignette */
+  .vignette {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 40%, rgba(10,5,2,0.75) 100%);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Page wrapper */
+  .page { position: relative; z-index: 2; min-height: 100vh; }
+
+  /* ── LANDING / LOGIN ── */
+  #landing {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    text-align: center;
+    padding: 2rem;
+  }
+
+  .brand-tagline {
+    font-family: 'Sacramento', cursive;
+    font-size: clamp(1rem, 3vw, 1.4rem);
+    color: var(--amber);
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+    opacity: 0;
+    animation: fadeIn 1s ease 0.3s forwards;
+  }
+
+  .brand-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(4rem, 12vw, 8rem);
+    line-height: 0.9;
+    color: var(--parchment);
+    text-shadow: 0 0 60px rgba(200,135,42,0.3);
+    opacity: 0;
+    animation: fadeIn 1.2s ease 0.6s forwards;
+    letter-spacing: -0.02em;
+  }
+
+  .brand-name em {
+    font-style: italic;
+    color: var(--blush);
+  }
+
+  .brand-sub {
+    font-family: 'Crimson Pro', serif;
+    font-size: clamp(1rem, 2.5vw, 1.25rem);
+    color: var(--dust);
+    font-style: italic;
+    margin-top: 1rem;
+    max-width: 480px;
+    line-height: 1.7;
+    opacity: 0;
+    animation: fadeIn 1s ease 1s forwards;
+  }
+
+  .divider-hearts {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 2.5rem 0;
+    opacity: 0;
+    animation: fadeIn 1s ease 1.3s forwards;
+  }
+  .divider-hearts::before, .divider-hearts::after {
+    content: '';
+    height: 1px;
+    width: 80px;
+    background: linear-gradient(90deg, transparent, var(--sepia));
+  }
+  .divider-hearts::after { background: linear-gradient(90deg, var(--sepia), transparent); }
+  .divider-hearts span { color: var(--heart); font-size: 0.9rem; }
+
+  .google-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    background: var(--parchment);
+    color: var(--ink);
+    border: none;
+    padding: 0.9rem 2rem;
+    border-radius: 4px;
+    font-family: 'Crimson Pro', serif;
+    font-size: 1.1rem;
+    font-weight: 400;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    letter-spacing: 0.02em;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.8);
+    opacity: 0;
+    animation: fadeIn 1s ease 1.6s forwards;
+  }
+  .google-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(200,135,42,0.3), inset 0 1px 0 rgba(255,255,255,0.8); }
+  .google-btn svg { width: 20px; height: 20px; }
+
+  .privacy-note {
+    margin-top: 1.5rem;
+    font-size: 0.85rem;
+    color: rgba(245,237,224,0.4);
+    font-style: italic;
+    opacity: 0;
+    animation: fadeIn 1s ease 2s forwards;
+  }
+
+  @keyframes fadeIn { to { opacity: 1; } }
+
+  /* ── APP SHELL ── */
+  #app { display: none; flex-direction: column; min-height: 100vh; }
+  #app.visible { display: flex; }
+
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 2rem;
+    border-bottom: 1px solid rgba(139,94,60,0.25);
+    backdrop-filter: blur(6px);
+    background: rgba(26,16,8,0.6);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .top-logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.6rem;
+    color: var(--parchment);
+  }
+  .top-logo em { font-style: italic; color: var(--blush); }
+
+  .user-area {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .user-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 2px solid var(--amber);
+    object-fit: cover;
+  }
+
+  .user-name {
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.95rem;
+    color: var(--dust);
+    font-style: italic;
+  }
+
+  .sign-out-btn {
+    background: none;
+    border: 1px solid rgba(139,94,60,0.4);
+    color: var(--sepia);
+    padding: 0.3rem 0.8rem;
+    border-radius: 3px;
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .sign-out-btn:hover { border-color: var(--rose); color: var(--rose); }
+
+  /* ── TABS ── */
+  .tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid rgba(139,94,60,0.2);
+    padding: 0 2rem;
+    background: rgba(26,16,8,0.4);
+  }
+  .tab {
+    font-family: 'Crimson Pro', serif;
+    font-size: 1rem;
+    color: rgba(245,237,224,0.45);
+    padding: 0.8rem 1.5rem;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s;
+    letter-spacing: 0.04em;
+  }
+  .tab.active { color: var(--amber); border-bottom-color: var(--amber); }
+  .tab:hover:not(.active) { color: var(--dust); }
+
+  /* ── MAIN CONTENT ── */
+  .main { flex: 1; padding: 2rem; max-width: 1100px; margin: 0 auto; width: 100%; }
+
+  /* ── RECORD TAB ── */
+  #tab-record { display: none; }
+  #tab-record.active { display: block; }
+
+  .record-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  .record-header h2 {
+    font-family: 'Sacramento', cursive;
+    font-size: 3rem;
+    color: var(--blush);
+    line-height: 1;
+  }
+  .record-header p {
+    color: var(--dust);
+    font-style: italic;
+    margin-top: 0.3rem;
+    font-size: 1.05rem;
+  }
+
+  .record-stage {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  @media(max-width: 768px) {
+    .record-stage { grid-template-columns: 1fr; }
+  }
+
+  .video-frame {
+    position: relative;
+    background: #0d0804;
+    border-radius: 4px;
+    overflow: hidden;
+    aspect-ratio: 16/9;
+    border: 2px solid rgba(139,94,60,0.3);
+    box-shadow: 0 0 0 1px rgba(200,135,42,0.1), 0 20px 60px rgba(0,0,0,0.6);
+  }
+
+  .video-frame::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(200,135,42,0.05) 0%, transparent 50%, rgba(155,74,84,0.05) 100%);
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .video-frame video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .rec-indicator {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(0,0,0,0.6);
+    padding: 4px 10px;
+    border-radius: 20px;
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .rec-indicator.on { opacity: 1; }
+  .rec-dot {
+    width: 8px; height: 8px;
+    background: #e53e3e;
+    border-radius: 50%;
+    animation: blink 1s infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+  .rec-text { font-size: 0.75rem; letter-spacing: 0.1em; color: #fff; }
+
+  .rec-timer {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    font-family: 'Crimson Pro', serif;
+    font-size: 1.1rem;
+    color: rgba(255,255,255,0.8);
+    background: rgba(0,0,0,0.5);
+    padding: 2px 10px;
+    border-radius: 20px;
+    z-index: 2;
+  }
+
+  .cam-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    color: rgba(245,237,224,0.3);
+    z-index: 0;
+  }
+  .cam-placeholder .ph-icon { font-size: 3rem; }
+  .cam-placeholder p { font-style: italic; font-size: 1rem; }
+
+  /* Controls panel */
+  .controls-panel {
+    background: rgba(26,16,8,0.7);
+    border: 1px solid rgba(139,94,60,0.25);
+    border-radius: 4px;
+    padding: 1.5rem;
+    backdrop-filter: blur(8px);
+  }
+
+  .panel-title {
+    font-family: 'Sacramento', cursive;
+    font-size: 1.8rem;
+    color: var(--amber);
+    margin-bottom: 1rem;
+  }
+
+  .form-group { margin-bottom: 1.2rem; }
+  .form-label {
+    display: block;
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--sepia);
+    margin-bottom: 0.4rem;
+  }
+  .form-input, .form-textarea, .form-select {
+    width: 100%;
+    background: rgba(245,237,224,0.06);
+    border: 1px solid rgba(139,94,60,0.3);
+    color: var(--parchment);
+    padding: 0.6rem 0.8rem;
+    border-radius: 3px;
+    font-family: 'Crimson Pro', serif;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+    resize: none;
+  }
+  .form-input:focus, .form-textarea:focus, .form-select:focus {
+    outline: none;
+    border-color: var(--amber);
+  }
+  .form-select option { background: #1a1008; }
+
+  .mood-row {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .mood-btn {
+    background: rgba(245,237,224,0.05);
+    border: 1px solid rgba(139,94,60,0.25);
+    color: var(--dust);
+    padding: 0.3rem 0.7rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Crimson Pro', serif;
+  }
+  .mood-btn.selected { background: rgba(184,60,82,0.25); border-color: var(--rose); color: var(--blush); }
+
+  .action-btns { display: flex; flex-direction: column; gap: 0.8rem; margin-top: 1.5rem; }
+
+  .btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 3px;
+    font-family: 'Crimson Pro', serif;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.25s;
+    border: none;
+    letter-spacing: 0.03em;
+    text-align: center;
+    font-weight: 400;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--rose), var(--heart));
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(184,60,82,0.4);
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(184,60,82,0.5); }
+  .btn-secondary {
+    background: transparent;
+    color: var(--amber);
+    border: 1px solid rgba(200,135,42,0.4);
+  }
+  .btn-secondary:hover { background: rgba(200,135,42,0.08); }
+  .btn-danger {
+    background: transparent;
+    color: var(--sepia);
+    border: 1px solid rgba(139,94,60,0.3);
+  }
+  .btn-danger:hover { border-color: var(--rose); color: var(--rose); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+
+  /* ── GALLERY TAB ── */
+  #tab-gallery { display: none; }
+  #tab-gallery.active { display: block; }
+
+  .gallery-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .gallery-header h2 {
+    font-family: 'Sacramento', cursive;
+    font-size: 2.8rem;
+    color: var(--blush);
+  }
+
+  .filter-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .filter-chip {
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    border: 1px solid rgba(139,94,60,0.3);
+    color: var(--dust);
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: none;
+  }
+  .filter-chip.active { background: rgba(200,135,42,0.15); border-color: var(--amber); color: var(--amber); }
+
+  .vlog-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .vlog-card {
+    background: rgba(26,16,8,0.8);
+    border: 1px solid rgba(139,94,60,0.2);
+    border-radius: 4px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    position: relative;
+    cursor: pointer;
+    animation: cardIn 0.4s ease forwards;
+  }
+  @keyframes cardIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+  .vlog-card:hover { transform: translateY(-4px); border-color: rgba(200,135,42,0.4); box-shadow: 0 12px 40px rgba(0,0,0,0.5); }
+
+  .card-thumb {
+    position: relative;
+    aspect-ratio: 16/9;
+    background: #0d0804;
+    overflow: hidden;
+  }
+  .card-thumb video {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .card-thumb-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 50%, rgba(10,5,2,0.85) 100%);
+  }
+  .card-play {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 44px; height: 44px;
+    background: rgba(200,135,42,0.85);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .vlog-card:hover .card-play { opacity: 1; }
+  .card-mood-badge {
+    position: absolute;
+    top: 8px; right: 8px;
+    background: rgba(0,0,0,0.55);
+    border-radius: 12px;
+    padding: 2px 8px;
+    font-size: 0.75rem;
+    color: var(--dust);
+    backdrop-filter: blur(4px);
+  }
+
+  .card-body { padding: 1rem; }
+  .card-date {
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    color: var(--sepia);
+    text-transform: uppercase;
+    margin-bottom: 0.3rem;
+  }
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    color: var(--parchment);
+    margin-bottom: 0.5rem;
+    line-height: 1.35;
+  }
+  .card-note {
+    font-size: 0.88rem;
+    color: rgba(245,237,224,0.5);
+    font-style: italic;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .card-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.7rem 1rem;
+    border-top: 1px solid rgba(139,94,60,0.15);
+  }
+  .card-action-btn {
+    background: none;
+    border: none;
+    color: rgba(245,237,224,0.35);
+    cursor: pointer;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: color 0.2s;
+    font-family: 'Crimson Pro', serif;
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+  .card-action-btn:hover { color: var(--amber); }
+  .card-action-btn.danger:hover { color: var(--rose); }
+
+  .empty-state {
+    grid-column: 1/-1;
+    text-align: center;
+    padding: 5rem 2rem;
+    color: rgba(245,237,224,0.3);
+  }
+  .empty-state .es-icon { font-size: 4rem; margin-bottom: 1rem; }
+  .empty-state p { font-style: italic; font-size: 1.1rem; }
+
+  /* ── MODAL (video player) ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10,5,2,0.92);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    backdrop-filter: blur(8px);
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-box {
+    background: #140d06;
+    border: 1px solid rgba(139,94,60,0.35);
+    border-radius: 6px;
+    max-width: 780px;
+    width: 100%;
+    overflow: hidden;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.8);
+    animation: modalIn 0.3s ease;
+  }
+  @keyframes modalIn { from { opacity:0; transform:scale(0.95); } to { opacity:1; transform:none; } }
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid rgba(139,94,60,0.2);
+  }
+  .modal-header h3 { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--parchment); }
+  .modal-close {
+    background: none;
+    border: none;
+    color: var(--sepia);
+    font-size: 1.5rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s;
+  }
+  .modal-close:hover { color: var(--rose); }
+  .modal-video { width: 100%; display: block; max-height: 450px; background: #000; }
+  .modal-meta { padding: 1rem 1.5rem; }
+  .modal-meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem 1.5rem; margin-bottom: 1rem; }
+  .modal-meta-item { font-size: 0.85rem; }
+  .modal-meta-label { color: var(--sepia); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; }
+  .modal-note { font-style: italic; color: var(--dust); font-size: 0.95rem; line-height: 1.6; margin-top: 0.5rem; }
+
+  /* Share panel */
+  .share-panel {
+    background: rgba(139,94,60,0.08);
+    border: 1px solid rgba(139,94,60,0.2);
+    border-radius: 4px;
+    padding: 1rem;
+    margin-top: 1rem;
+  }
+  .share-panel h4 { font-family: 'Playfair Display', serif; font-size: 0.95rem; margin-bottom: 0.7rem; color: var(--amber); }
+  .share-code-row { display: flex; gap: 0.5rem; }
+  .share-code-input {
+    flex: 1;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(139,94,60,0.3);
+    color: var(--parchment);
+    padding: 0.5rem 0.8rem;
+    border-radius: 3px;
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.9rem;
+    letter-spacing: 0.08em;
+  }
+  .copy-btn {
+    background: rgba(200,135,42,0.15);
+    border: 1px solid rgba(200,135,42,0.3);
+    color: var(--amber);
+    padding: 0.5rem 0.9rem;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+  }
+  .copy-btn:hover { background: rgba(200,135,42,0.25); }
+  .share-note { font-size: 0.78rem; color: rgba(245,237,224,0.35); font-style: italic; margin-top: 0.5rem; }
+
+  /* Share input */
+  .share-email-row { display: flex; gap: 0.5rem; margin-top: 0.7rem; }
+  .share-email-input {
+    flex: 1;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(139,94,60,0.3);
+    color: var(--parchment);
+    padding: 0.5rem 0.8rem;
+    border-radius: 3px;
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.9rem;
+  }
+
+  /* ── SHARED ACCESS TAB ── */
+  #tab-shared { display: none; }
+  #tab-shared.active { display: block; }
+  .shared-header h2 { font-family: 'Sacramento', cursive; font-size: 2.8rem; color: var(--blush); margin-bottom: 0.5rem; }
+  .shared-header p { color: var(--dust); font-style: italic; font-size: 1rem; margin-bottom: 2rem; }
+
+  .access-form {
+    max-width: 480px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 3rem 2rem;
+    background: rgba(26,16,8,0.6);
+    border: 1px solid rgba(139,94,60,0.2);
+    border-radius: 6px;
+  }
+  .access-form h3 { font-family: 'Playfair Display', serif; font-size: 1.4rem; margin-bottom: 0.5rem; }
+  .access-form p { color: var(--dust); font-style: italic; margin-bottom: 1.5rem; }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: rgba(26,16,8,0.95);
+    border: 1px solid rgba(200,135,42,0.3);
+    color: var(--parchment);
+    padding: 0.8rem 1.5rem;
+    border-radius: 4px;
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.95rem;
+    z-index: 9998;
+    transition: transform 0.3s ease;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: rgba(26,16,8,0.5); }
+  ::-webkit-scrollbar-thumb { background: rgba(139,94,60,0.4); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- Floating hearts -->
+<div class="hearts-bg" id="hearts"></div>
+<div class="vignette"></div>
+
+<div class="page">
+
+  <!-- ═══ LANDING ═══ -->
+  <div id="landing">
+    <div class="brand-tagline">a place to remember</div>
+    <div class="brand-name">Mé<em>moire</em></div>
+    <div class="brand-sub">
+      Your daily vlogs, wrapped in the warmth of old memories.<br/>
+      Private. Beautiful. Yours alone — until you choose to share.
+    </div>
+    <div class="divider-hearts">
+      <span>♥ ♥ ♥</span>
+    </div>
+    <button class="google-btn" onclick="handleGoogleSignIn()">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+      </svg>
+      Continue with Google
+    </button>
+    <p class="privacy-note">🔒 Only you can see your memories — unless you choose to share them.</p>
+  </div>
+
+  <!-- ═══ APP ═══ -->
+  <div id="app">
+
+    <!-- Top bar -->
+    <div class="top-bar">
+      <div class="top-logo">Mé<em>moire</em></div>
+      <div class="user-area">
+        <img id="userAvatar" class="user-avatar" src="" alt="" onerror="this.style.display='none'"/>
+        <span class="user-name" id="userName"></span>
+        <button class="sign-out-btn" onclick="signOut()">Sign out</button>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('record')">📽 Record</div>
+      <div class="tab" onclick="switchTab('gallery')">🎞 My Vlogs</div>
+      <div class="tab" onclick="switchTab('shared')">🔗 Shared with Me</div>
+    </div>
+
+    <div class="main">
+
+      <!-- ── RECORD TAB ── -->
+      <div id="tab-record" class="active">
+        <div class="record-header">
+          <h2>Begin today's story</h2>
+          <p>Record a moment, leave a memory.</p>
+        </div>
+
+        <div class="record-stage">
+          <div class="video-frame">
+            <div class="cam-placeholder" id="camPlaceholder">
+              <div class="ph-icon">🎥</div>
+              <p>Your camera will appear here</p>
+            </div>
+            <video id="previewVideo" autoplay muted playsinline style="display:none;"></video>
+            <div class="rec-indicator" id="recIndicator">
+              <div class="rec-dot"></div>
+              <span class="rec-text">REC</span>
+            </div>
+            <div class="rec-timer" id="recTimer" style="display:none;">0:00</div>
+          </div>
+
+          <div class="controls-panel">
+            <div class="panel-title">Today's Vlog</div>
+
+            <div class="form-group">
+              <label class="form-label">Title</label>
+              <input class="form-input" id="vlogTitle" type="text" placeholder="What happened today…"/>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Mood</label>
+              <div class="mood-row" id="moodRow">
+                <button class="mood-btn" onclick="selectMood(this,'💛 Warm')">💛 Warm</button>
+                <button class="mood-btn" onclick="selectMood(this,'💙 Calm')">💙 Calm</button>
+                <button class="mood-btn" onclick="selectMood(this,'❤️ Nostalgic')">❤️ Nostalgic</button>
+                <button class="mood-btn" onclick="selectMood(this,'💚 Grateful')">💚 Grateful</button>
+                <button class="mood-btn" onclick="selectMood(this,'💜 Dreamy')">💜 Dreamy</button>
+                <button class="mood-btn" onclick="selectMood(this,'🖤 Low')">🖤 Low</button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Note to your future self</label>
+              <textarea class="form-textarea" id="vlogNote" rows="3" placeholder="Write something to remember…"></textarea>
+            </div>
+
+            <div class="action-btns">
+              <button class="btn btn-secondary" id="startCamBtn" onclick="startCamera()">📷 Open Camera</button>
+              <button class="btn btn-primary" id="startRecBtn" onclick="startRecording()" disabled>⏺ Start Recording</button>
+              <button class="btn btn-danger" id="stopRecBtn" onclick="stopRecording()" disabled style="display:none;">⏹ Stop & Save</button>
+            </div>
+
+            <div id="savingMsg" style="display:none;margin-top:1rem;text-align:center;font-style:italic;color:var(--amber);font-size:0.9rem;">
+              ♥ Saving your memory…
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── GALLERY TAB ── -->
+      <div id="tab-gallery">
+        <div class="gallery-header">
+          <h2>My Vlogs</h2>
+          <div class="filter-row" id="filterRow">
+            <button class="filter-chip active" onclick="filterMood(this,'all')">All</button>
+            <button class="filter-chip" onclick="filterMood(this,'💛 Warm')">💛 Warm</button>
+            <button class="filter-chip" onclick="filterMood(this,'💙 Calm')">💙 Calm</button>
+            <button class="filter-chip" onclick="filterMood(this,'❤️ Nostalgic')">❤️ Nostalgic</button>
+            <button class="filter-chip" onclick="filterMood(this,'💚 Grateful')">💚 Grateful</button>
+            <button class="filter-chip" onclick="filterMood(this,'💜 Dreamy')">💜 Dreamy</button>
+            <button class="filter-chip" onclick="filterMood(this,'🖤 Low')">🖤 Low</button>
+          </div>
+        </div>
+        <div class="vlog-grid" id="vlogGrid"></div>
+      </div>
+
+      <!-- ── SHARED TAB ── -->
+      <div id="tab-shared">
+        <div class="shared-header">
+          <h2>Shared with Me</h2>
+          <p>Someone opened their heart — enter your access code below.</p>
+        </div>
+        <div class="access-form">
+          <h3>Enter Access Code</h3>
+          <p>Ask the person to share their 8-letter code with you.</p>
+          <div style="display:flex;gap:0.5rem;margin-bottom:1rem;">
+            <input class="form-input" id="accessCodeInput" placeholder="e.g. MEM-ABCD-1234" style="text-transform:uppercase;letter-spacing:0.1em;"/>
+            <button class="btn btn-primary" onclick="viewShared()" style="white-space:nowrap;">Open</button>
+          </div>
+          <p style="font-size:0.8rem;color:rgba(245,237,224,0.3);font-style:italic;">Access is read-only. The owner can revoke it at any time.</p>
+        </div>
+        <div id="sharedVlogGrid" class="vlog-grid" style="margin-top:2rem;"></div>
+      </div>
+
+    </div><!-- .main -->
+  </div><!-- #app -->
+
+</div><!-- .page -->
+
+<!-- ═══ VIDEO MODAL ═══ -->
+<div class="modal-overlay" id="videoModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="modalTitle">Untitled Memory</h3>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <video class="modal-video" id="modalVideo" controls></video>
+    <div class="modal-meta">
+      <div class="modal-meta-grid">
+        <div class="modal-meta-item">
+          <div class="modal-meta-label">Date</div>
+          <div id="modalDate">—</div>
+        </div>
+        <div class="modal-meta-item">
+          <div class="modal-meta-label">Mood</div>
+          <div id="modalMood">—</div>
+        </div>
+      </div>
+      <div class="modal-meta-label">Note</div>
+      <div class="modal-note" id="modalNote"></div>
+
+      <div class="share-panel" id="sharePanel">
+        <h4>♥ Share this memory</h4>
+        <p style="font-size:0.8rem;color:var(--dust);font-style:italic;margin-bottom:0.7rem;">Give this code to someone you trust. They can view this vlog using their account.</p>
+        <div class="share-code-row">
+          <input class="share-code-input" id="shareCodeDisplay" readonly/>
+          <button class="copy-btn" onclick="copyShareCode()">Copy</button>
+        </div>
+        <p class="share-note">Or share directly by email (demo):</p>
+        <div class="share-email-row">
+          <input class="share-email-input form-input" id="shareEmail" type="email" placeholder="friend@email.com"/>
+          <button class="btn btn-secondary" style="white-space:nowrap;padding:0.5rem 1rem;" onclick="sendShareInvite()">Invite</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── HEARTS BACKGROUND ───
+(function(){
+  const container = document.getElementById('hearts');
+  const count = 22;
+  for(let i=0;i<count;i++){
+    const h = document.createElement('div');
+    h.className = 'heart-float';
+    h.textContent = ['♥','❤','♡','💕'][Math.floor(Math.random()*4)];
+    const size = 10 + Math.random()*28;
+    const duration = 12 + Math.random()*20;
+    const delay = Math.random()*18;
+    const opacity = 0.04 + Math.random()*0.12;
+    const blur = Math.random()*3;
+    const rot = (Math.random()-0.5)*60;
+    h.style.cssText = `--s:${size}px;--d:${duration}s;--delay:${delay}s;--x:${Math.random()*100}%;--op:${opacity};--blur:${blur}px;--rot:${rot}deg;`;
+    container.appendChild(h);
+  }
+})();
+
+// ─── DB ───
+let db;
+function openDB(){
+  return new Promise((res,rej)=>{
+    const req = indexedDB.open('MemoireDB',2);
+    req.onupgradeneeded = e=>{
+      const d=e.target.result;
+      if(!d.objectStoreNames.contains('vlogs')){
+        const s=d.createObjectStore('vlogs',{keyPath:'id',autoIncrement:true});
+        s.createIndex('owner','owner',{unique:false});
+        s.createIndex('shareCode','shareCode',{unique:false});
+      }
+    };
+    req.onsuccess = e=>{ db=e.target.result; res(db); };
+    req.onerror = ()=>rej(req.error);
+  });
+}
+
+function saveVlog(vlog){
+  return new Promise((res,rej)=>{
+    const tx=db.transaction('vlogs','readwrite');
+    const req=tx.objectStore('vlogs').add(vlog);
+    req.onsuccess=()=>res(req.result);
+    req.onerror=()=>rej(req.error);
+  });
+}
+
+function getVlogs(owner){
+  return new Promise((res,rej)=>{
+    const tx=db.transaction('vlogs','readonly');
+    const idx=tx.objectStore('vlogs').index('owner');
+    const req=idx.getAll(owner);
+    req.onsuccess=()=>res(req.result);
+    req.onerror=()=>rej(req.error);
+  });
+}
+
+function getVlogByCode(code){
+  return new Promise((res,rej)=>{
+    const tx=db.transaction('vlogs','readonly');
+    const idx=tx.objectStore('vlogs').index('shareCode');
+    const req=idx.get(code);
+    req.onsuccess=()=>res(req.result||null);
+    req.onerror=()=>rej(req.error);
+  });
+}
+
+function deleteVlog(id){
+  return new Promise((res,rej)=>{
+    const tx=db.transaction('vlogs','readwrite');
+    tx.objectStore('vlogs').delete(id);
+    tx.oncomplete=res;
+    tx.onerror=()=>rej(tx.error);
+  });
+}
+
+// ─── AUTH (Google GSI mock + simulated token) ───
+let currentUser = null;
+
+function handleGoogleSignIn(){
+  // Use Google Identity Services if loaded, else simulate
+  if(window.google && google.accounts){
+    google.accounts.id.initialize({
+      client_id: '<!-- REPLACE_WITH_YOUR_GOOGLE_CLIENT_ID -->',
+      callback: onGoogleCredential
+    });
+    google.accounts.id.prompt(n=>{
+      if(n.isNotDisplayed() || n.isSkippedMoment()){
+        // Fallback demo mode
+        simulateSignIn();
+      }
+    });
+  } else {
+    simulateSignIn();
+  }
+}
+
+function simulateSignIn(){
+  // Demo: simulate a signed-in user stored in sessionStorage
+  const stored = sessionStorage.getItem('memoireUser');
+  if(stored){
+    currentUser = JSON.parse(stored);
+  } else {
+    const demoEmail = prompt('Enter your email to sign in (demo mode):', 'you@example.com') || 'guest@memoire.app';
+    const name = demoEmail.split('@')[0].replace(/[._]/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+    currentUser = { email: demoEmail, name, picture: '' };
+    sessionStorage.setItem('memoireUser', JSON.stringify(currentUser));
+  }
+  loadApp();
+}
+
+function onGoogleCredential(resp){
+  // Decode JWT payload
+  try {
+    const payload = JSON.parse(atob(resp.credential.split('.')[1]));
+    currentUser = { email: payload.email, name: payload.name, picture: payload.picture };
+    sessionStorage.setItem('memoireUser', JSON.stringify(currentUser));
+    loadApp();
+  } catch(e){ simulateSignIn(); }
+}
+
+async function loadApp(){
+  await openDB();
+  document.getElementById('landing').style.display='none';
+  document.getElementById('app').classList.add('visible');
+  document.getElementById('userName').textContent = currentUser.name;
+  if(currentUser.picture){
+    document.getElementById('userAvatar').src = currentUser.picture;
+  }
+  renderGallery();
+}
+
+function signOut(){
+  sessionStorage.removeItem('memoireUser');
+  currentUser = null;
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('landing').style.display='flex';
+  stopCamera();
+}
+
+// Check session on load
+window.addEventListener('load', async ()=>{
+  await openDB();
+  const stored = sessionStorage.getItem('memoireUser');
+  if(stored){
+    currentUser = JSON.parse(stored);
+    loadApp();
+  }
+});
+
+// ─── TABS ───
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach((t,i)=>{
+    const names=['record','gallery','shared'];
+    t.classList.toggle('active', names[i]===name);
+  });
+  document.querySelectorAll('[id^="tab-"]').forEach(el=>{
+    el.classList.remove('active');
+  });
+  document.getElementById('tab-'+name).classList.add('active');
+  if(name==='gallery') renderGallery();
+}
+
+// ─── CAMERA & RECORDING ───
+let stream=null, recorder=null, chunks=[], timerInterval=null, elapsed=0, selectedMood='';
+
+async function startCamera(){
+  try{
+    stream = await navigator.mediaDevices.getUserMedia({video:true,audio:true});
+    const vid = document.getElementById('previewVideo');
+    vid.srcObject = stream;
+    vid.style.display = 'block';
+    document.getElementById('camPlaceholder').style.display='none';
+    document.getElementById('startRecBtn').disabled=false;
+    document.getElementById('startCamBtn').disabled=true;
+    showToast('Camera ready ♥');
+  } catch(e){
+    showToast('Could not access camera. Please allow permissions.');
+  }
+}
+
+function stopCamera(){
+  if(stream){ stream.getTracks().forEach(t=>t.stop()); stream=null; }
+  const vid=document.getElementById('previewVideo');
+  vid.style.display='none'; vid.srcObject=null;
+  document.getElementById('camPlaceholder').style.display='flex';
+  document.getElementById('startRecBtn').disabled=true;
+  document.getElementById('startCamBtn').disabled=false;
+}
+
+function startRecording(){
+  if(!stream) return;
+  chunks=[];
+  recorder = new MediaRecorder(stream, {mimeType: getSupportedMime()});
+  recorder.ondataavailable = e=>{ if(e.data.size>0) chunks.push(e.data); };
+  recorder.onstop = finalizeRecording;
+  recorder.start(1000);
+
+  document.getElementById('recIndicator').classList.add('on');
+  document.getElementById('recTimer').style.display='block';
+  document.getElementById('startRecBtn').style.display='none';
+  document.getElementById('stopRecBtn').style.display='block';
+  document.getElementById('stopRecBtn').disabled=false;
+  document.getElementById('startCamBtn').disabled=true;
+
+  elapsed=0;
+  updateTimer();
+  timerInterval=setInterval(()=>{ elapsed++; updateTimer(); },1000);
+}
+
+function updateTimer(){
+  const m=Math.floor(elapsed/60);
+  const s=(elapsed%60).toString().padStart(2,'0');
+  document.getElementById('recTimer').textContent=`${m}:${s}`;
+}
+
+function stopRecording(){
+  if(recorder && recorder.state!=='inactive') recorder.stop();
+  clearInterval(timerInterval);
+  document.getElementById('recIndicator').classList.remove('on');
+  document.getElementById('recTimer').style.display='none';
+  document.getElementById('stopRecBtn').style.display='none';
+  document.getElementById('startRecBtn').style.display='block';
+}
+
+async function finalizeRecording(){
+  const mime = getSupportedMime();
+  const blob = new Blob(chunks, {type: mime});
+
+  const title = document.getElementById('vlogTitle').value.trim() || 'Untitled Memory';
+  const note = document.getElementById('vlogNote').value.trim();
+
+  document.getElementById('savingMsg').style.display='block';
+
+  const arrayBuf = await blob.arrayBuffer();
+
+  const shareCode = 'MEM-' + randomStr(4) + '-' + randomStr(4);
+
+  await saveVlog({
+    owner: currentUser.email,
+    title,
+    note,
+    mood: selectedMood || '—',
+    date: new Date().toISOString(),
+    videoData: arrayBuf,
+    videoMime: mime,
+    shareCode,
+    sharedWith: []
+  });
+
+  document.getElementById('savingMsg').style.display='none';
+  document.getElementById('vlogTitle').value='';
+  document.getElementById('vlogNote').value='';
+  document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('selected'));
+  selectedMood='';
+
+  stopCamera();
+  showToast('Your memory has been saved ♥');
+  switchTab('gallery');
+}
+
+function getSupportedMime(){
+  const types=['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm','video/mp4'];
+  for(const t of types){ if(MediaRecorder.isTypeSupported(t)) return t; }
+  return 'video/webm';
+}
+
+function selectMood(btn, mood){
+  document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedMood=mood;
+}
+
+// ─── GALLERY ───
+let currentFilter='all';
+
+async function renderGallery(){
+  if(!currentUser||!db) return;
+  const vlogs = await getVlogs(currentUser.email);
+  vlogs.sort((a,b)=>new Date(b.date)-new Date(a.date));
+
+  const filtered = currentFilter==='all' ? vlogs : vlogs.filter(v=>v.mood===currentFilter);
+  const grid = document.getElementById('vlogGrid');
+  grid.innerHTML='';
+
+  if(!filtered.length){
+    grid.innerHTML=`<div class="empty-state"><div class="es-icon">♡</div><p>No memories yet. Begin your first vlog today.</p></div>`;
+    return;
+  }
+
+  filtered.forEach(vlog=>{
+    const blob = new Blob([vlog.videoData],{type:vlog.videoMime||'video/webm'});
+    const url = URL.createObjectURL(blob);
+    const dateStr = new Date(vlog.date).toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+    const shortDate = new Date(vlog.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+
+    const card = document.createElement('div');
+    card.className='vlog-card';
+    card.innerHTML=`
+      <div class="card-thumb" onclick="openModal(${vlog.id})">
+        <video src="${url}" preload="metadata" muted></video>
+        <div class="card-thumb-overlay"></div>
+        <div class="card-play"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg></div>
+        ${vlog.mood && vlog.mood!=='—' ? `<div class="card-mood-badge">${vlog.mood}</div>` : ''}
+      </div>
+      <div class="card-body">
+        <div class="card-date">${shortDate}</div>
+        <div class="card-title">${vlog.title}</div>
+        ${vlog.note ? `<div class="card-note">${vlog.note}</div>` : ''}
+      </div>
+      <div class="card-actions">
+        <button class="card-action-btn" onclick="openModal(${vlog.id})">▶ Play</button>
+        <button class="card-action-btn" onclick="downloadVlog(${vlog.id})">⬇ Download</button>
+        <button class="card-action-btn danger" onclick="deleteVlogEntry(${vlog.id})">🗑 Delete</button>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function filterMood(btn, mood){
+  currentFilter=mood;
+  document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active');
+  renderGallery();
+}
+
+// ─── MODAL ───
+let currentModalId=null;
+
+async function openModal(id){
+  currentModalId=id;
+  const vlogs = await getVlogs(currentUser.email);
+  const vlog = vlogs.find(v=>v.id===id);
+  if(!vlog) return;
+
+  document.getElementById('modalTitle').textContent=vlog.title;
+  document.getElementById('modalDate').textContent=new Date(vlog.date).toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('modalMood').textContent=vlog.mood||'—';
+  document.getElementById('modalNote').textContent=vlog.note||'Nothing written.';
+  document.getElementById('shareCodeDisplay').value=vlog.shareCode||'';
+
+  const blob=new Blob([vlog.videoData],{type:vlog.videoMime||'video/webm'});
+  const url=URL.createObjectURL(blob);
+  const mv=document.getElementById('modalVideo');
+  mv.src=url;
+
+  // Only show share panel for owner
+  document.getElementById('sharePanel').style.display='block';
+
+  document.getElementById('videoModal').classList.add('open');
+}
+
+function closeModal(){
+  document.getElementById('videoModal').classList.remove('open');
+  const mv=document.getElementById('modalVideo');
+  mv.pause(); mv.src='';
+  currentModalId=null;
+}
+
+function copyShareCode(){
+  const code=document.getElementById('shareCodeDisplay').value;
+  navigator.clipboard.writeText(code).then(()=>showToast('Code copied! Share it with someone you trust ♥'));
+}
+
+function sendShareInvite(){
+  const email=document.getElementById('shareEmail').value.trim();
+  if(!email){ showToast('Please enter an email address'); return; }
+  showToast(`Invite sent to ${email} ♥ (demo — no email sent in standalone mode)`);
+  document.getElementById('shareEmail').value='';
+}
+
+// ─── SHARED ACCESS ───
+async function viewShared(){
+  const code=document.getElementById('accessCodeInput').value.trim().toUpperCase();
+  if(!code){ showToast('Please enter an access code'); return; }
+  const vlog=await getVlogByCode(code);
+  if(!vlog){
+    showToast('No memory found with that code. Please check and try again.');
+    return;
+  }
+  // Show in shared grid
+  const grid=document.getElementById('sharedVlogGrid');
+  const blob=new Blob([vlog.videoData],{type:vlog.videoMime||'video/webm'});
+  const url=URL.createObjectURL(blob);
+  const shortDate=new Date(vlog.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  grid.innerHTML=`
+    <div class="vlog-card" style="max-width:380px;">
+      <div class="card-thumb">
+        <video src="${url}" controls style="width:100%;height:100%;object-fit:cover;display:block;"></video>
+        <div class="card-thumb-overlay"></div>
+        ${vlog.mood && vlog.mood!=='—'?`<div class="card-mood-badge">${vlog.mood}</div>`:''}
+      </div>
+      <div class="card-body">
+        <div class="card-date">${shortDate} · Shared with you</div>
+        <div class="card-title">${vlog.title}</div>
+        ${vlog.note?`<div class="card-note">${vlog.note}</div>`:''}
+      </div>
+    </div>`;
+  showToast('Memory opened ♥ Read-only access granted');
+}
+
+// ─── DOWNLOAD ───
+async function downloadVlog(id){
+  const vlogs=await getVlogs(currentUser.email);
+  const vlog=vlogs.find(v=>v.id===id);
+  if(!vlog) return;
+  const blob=new Blob([vlog.videoData],{type:vlog.videoMime||'video/webm'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=`${vlog.title.replace(/\s+/g,'_')}.webm`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Downloading your memory…');
+}
+
+async function deleteVlogEntry(id){
+  if(!confirm('Delete this memory? This cannot be undone.')) return;
+  await deleteVlog(id);
+  renderGallery();
+  showToast('Memory removed.');
+}
+
+// ─── UTILS ───
+function randomStr(len){
+  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  return Array.from({length:len},()=>chars[Math.floor(Math.random()*chars.length)]).join('');
+}
+
+let toastTimeout;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout=setTimeout(()=>t.classList.remove('show'),3200);
+}
+
+// Close modal on overlay click
+document.getElementById('videoModal').addEventListener('click',function(e){
+  if(e.target===this) closeModal();
+});
+</script>
+</body>
+</html>
